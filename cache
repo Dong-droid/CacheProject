@@ -1,1 +1,141 @@
 
+#pragma once
+/* DO NOT CHANGE THE FOLLOWING DEFINITIONS EXCEPT 'DEFAULT_CACHE_ASSOC */
+#ifndef _CACHE_IMPL_H_
+#define _CACHE_IMPL_H_
+/* Define Constants */
+#define WORD_SIZE_BYTE 4 // 1 word = 4 bytes
+#define DEFAULT_CACHE_SIZE_BYTE 32 // cache size = 32 bytes
+#define DEFAULT_CACHE_BLOCK_SIZE_BYTE 8 // block size = 8 bytes
+#define DEFAULT_CACHE_ASSOC 4 // association = 2
+// direct 1, 2-way 2, fully 4
+#define DEFAULT_MEMORY_SIZE_WORD 128 // main memory size = 128 words 
+// = 128 * 4 bytes
+#define CACHE_ACCESS_CYCLE 1 // cache access time = 1 cycle
+#define MEMORY_ACCESS_CYCLE 100 // main memory access time 
+// = 100 cycles
+#define CACHE_SET_SIZE
+((DEFAULT_CACHE_SIZE_BYTE) / (DEFAULT_CACHE_BLOCK_SIZE_BYTE * DEFAULT_CACHE_ASSOC))
+// set size=[direct]32/(8*1)=4, [2-way]32/(8*2)=2, [full] 32/(8*4)=1
+
+/* Function Prototypes */
+void init_memory_content();
+void init_cache_content();
+void print_cache_entries();
+int check_cache_data_hit(void* addr, char type);
+int access_memory(void* addr, char type);
+/* Cache Entry Structure */
+
+typedef struct cache_entry {
+	int valid; // present = 1, not present = 0
+	int tag; // tag of the stored data
+	int timestamp; // most recent access time
+	char data[DEFAULT_CACHE_BLOCK_SIZE_BYTE]; // data from memory[address]
+} cache_entry_t; // define type as cache_entry_t
+
+/* hit ratio = (num_cache_hits / (num_cache_hits + num_cache_misses)) */
+int num_cache_hits = 0; // # of hits
+int num_cache_misses = 0; // # of misses
+
+/* bandwidth = (num_bytes / num_acess_cycles) */
+int num_bytes = 0; // # of accessed bytes
+int num_access_cycles = 0;// # of clock cycles
+int global_timestamp = 0; // # of data access trial
+FILE* ifp = NULL, * ofp = NULL; // file pointers
+unsigned long int access_addr; // byte address (located at 1st column)
+char access_type; // 'b'(byte), 'h'(halfword), or 'w'(word) 
+// (located at 2nd column)
+int accessed_data; // data to retrive
+/* initialize memory and cache
+by invoking init_memory_content() and init_cache_content() */
+
+int main() {
+	init_memory_content();
+	init_cache_content();
+	/* open input file as reading mode */
+	ifp = fopen("access_input.txt", "r");
+	if (ifp == NULL) {
+		printf("Can't open input file\n");
+		return -1;
+	}
+	/* open output file as writing mode */
+	ofp = fopen("access_output.txt", "w");
+	if (ofp == NULL) {
+		printf("Can't open output file\n");
+		fclose(ifp);
+		return -1;
+	}
+
+	/* read each line and get the data in given (address, type)
+	by invoking retrieve_data() */
+	/* print hit ratio and bandwidth for each cache mechanism
+	as regards to cache association size */
+	/* close files */
+	fclose(ifp);
+	fclose(ofp);
+	/* print the final cache entries by invoking print_cache_entries() */
+	print_cache_entries();
+	return 0;
+}
+
+
+/* This function is to initialize contents of the cache memory */
+void init_cache_content() {
+	int i, j;
+	/* initialize cache data */
+	for (i = 0; i < CACHE_SET_SIZE; i++) {
+		for (j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+			cache_entry_t* pEntry = &cache_array[i][j];
+			pEntry->valid = 0; // invalid
+			pEntry->tag = -1; // no tag
+			pEntry->timestamp = 0; // no access trial
+		}
+	}
+}
+void print_cache_entries() {
+int i, j, k;
+printf("ENTRY >>\n");
+// for each set
+for (i = 0; i<CACHE_SET_SIZE; i++) {
+printf(" [Set %d] ", i);
+// for each entry in a set
+for (j = 0; j <DEFAULT_CACHE_ASSOC; j++) {
+cache_entry_t *pEntry = &cache_array[i][j];
+printf("\n Valid: %d Tag: %#x Time: %d Data: ", pEntry->valid, 
+pEntry->tag, pEntry->timestamp);
+// for each block in a entry
+for (k = 0; k<DEFAULT_CACHE_BLOCK_SIZE_BYTE; k++) { 
+printf("(%d)%#x ", k, pEntry->data[k]);
+}
+printf("\t");
+}
+printf("\n");
+}
+}
+
+int check_cache_data_hit(void *addr, char type) {
+/* add this cache access cycle to global access cycle */
+/* check all entries in a set */
+/* if there is no data in cache, data is missed and return -1*/
+// return -1 for missing
+return -1; 
+}
+
+int access_memory(void *addr, char type) { 
+/* get the entry index by invoking find_entry_index_in_set()
+for copying to the cache */
+/* add this main memory access cycle to global access cycle */
+/* Fetch the data from the main memory and copy them to the cache */
+/* Return the accessed data with a suitable type (b, h, or w)*/
+// return -1 for unknown type
+return -1;
+}
+int find_entry_index_in_set(int cache_index) {
+int entry_index;
+/* Check if there exists any empty cache space by checking 'valid' */
+/* If the set has only 1 entry, return index 0 */
+/* Otherwise, search over all entries
+to find the least recently used entry by checking 'timestamp' */
+/* return the cache index for copying from memory */
+return entry_index; 
+}
