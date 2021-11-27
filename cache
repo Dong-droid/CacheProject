@@ -79,7 +79,7 @@ int main() {
 }
 
 
-/* This function is to initialize contents of the cache memory */
+/* 초기화 cache memory */
 void init_cache_content() {
 	int i, j;
 	/* initialize cache data */
@@ -92,6 +92,7 @@ void init_cache_content() {
 		}
 	}
 }
+/* 캐시 출력 */
 void print_cache_entries() {
 int i, j, k;
 printf("ENTRY >>\n");
@@ -113,13 +114,25 @@ printf("\n");
 }
 }
 
-int check_cache_data_hit(void *addr, char type) {
-/* add this cache access cycle to global access cycle */
-/* check all entries in a set */
-/* if there is no data in cache, data is missed and return -1*/
-// return -1 for missing
-return -1; 
+int check_cache_data_hit(void* addr, char type) {
+
+	/* add this cache access cycle to global access cycle */
+	num_access_cycles++;
+
+	/* check all entries in a set */
+	//direct-mapped cache -> valid -> Tag 
+	for (i = 0; i < CACHE_SET_SIZE; i++) {
+		for (j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+			cache_entry_t* pEntry = &cache_array[i][j];
+			pEntry->timestamp++; // 이거 맞나 timestamp 
+			if(pEntry->valid == 1 && tag ==pEntry->tag) return 1; //  hit otherwise miss
+			
+		}
+	}
+	// return -1 for missing
+	return -1;
 }
+
 
 int access_memory(void *addr, char type) { 
 /* get the entry index by invoking find_entry_index_in_set()
