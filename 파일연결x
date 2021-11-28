@@ -1,0 +1,271 @@
+#include <stdio.h>
+#include <math.h>
+
+#define WORD_SIZE_BYTE 4 // 1 word = 4 bytes
+#define DEFAULT_CACHE_SIZE_BYTE 32 // cache size = 32 bytes
+#define DEFAULT_CACHE_BLOCK_SIZE_BYTE 8 // block size = 8 bytes
+#define DEFAULT_CACHE_ASSOC 1// association = 2
+// direct 1, 2-way 2, fully 4
+#define DEFAULT_MEMORY_SIZE_WORD 128 // main memory size = 128 words
+// = 128 * 4 bytes
+#define CACHE_ACCESS_CYCLE 1 // cache access time = 1 cycle
+#define MEMORY_ACCESS_CYCLE 100 // main memory access time
+// = 100 cycles
+#define CACHE_SET_SIZE ((DEFAULT_CACHE_SIZE_BYTE) / (DEFAULT_CACHE_BLOCK_SIZE_BYTE * DEFAULT_CACHE_ASSOC))
+// set size=[direct]32/(8*1)=4, [2-way]32/(8*2)=2, [full] 32/(8*4)=1
+
+/* Function Prototypes */
+void init_memory_content();
+void init_cache_content();
+void print_cache_entries();
+int check_cache_data_hit(void* addr, char type);
+int access_memory(void* addr, char type);
+int retrieve_data(void* addr, char data_type);
+/* Cache Entry Structure */
+void func(void* x, char type) {
+   if (type == 'b')
+      printf("%#x\n", (char*)x);
+   else if (type == 'h')
+      printf("%#x\n", (short*)x);
+   else if (type == 'w')
+      printf("%#x\n", (int*)x);
+}
+typedef struct cache_entry {
+	int valid; // present = 1, not present = 0
+	int tag; // tag of the stored data
+	int timestamp; // most recent access time
+	char data[DEFAULT_CACHE_BLOCK_SIZE_BYTE]; // data from memory[address]
+} cache_entry_t; // define type as cache_entry_t
+
+/* hit ratio = (num_cache_hits / (num_cache_hits + num_cache_misses)) */
+int num_cache_hits = 0; // # of hits
+int num_cache_misses = 0; // # of misses
+
+/* bandwidth = (num_bytes / num_acess_cycles) */
+int num_bytes = 0; // # of accessed bytes
+int num_access_cycles = 0;// # of clock cycles
+int global_timestamp = 0; // # of data access trial
+
+FILE* ifp = NULL, * ofp = NULL; // file pointers
+
+unsigned long int access_addr; // byte address (located at 1st column)
+char access_type; // 'b'(byte), 'h'(halfword), or 'w'(word)
+// (located at 2nd column)
+int accessed_data; // data to retrive
+/* initialize memory and cache
+by invoking init_memory_content() and init_cache_content() */
+
+cache_entry_t cache_array[CACHE_SET_SIZE][DEFAULT_CACHE_ASSOC];
+int memory_array[DEFAULT_MEMORY_SIZE_WORD];
+
+int main() {
+	init_memory_content();
+	init_cache_content();
+	/* open input file as reading mode */
+	/*ifp = fopen("access_input.txt", "r");
+	if (ifp == NULL) {
+		printf("Can't open input file\n");
+		return -1;
+	}
+	open output file as writing mode
+	ofp = fopen("access_output.txt", "w");
+	if (ofp == NULL) {
+		printf("Can't open output file\n");
+		fclose(ifp);
+		return -1;
+	}
+	*/
+	scanf("%ld%c",&access_addr,&access_type);
+	/* read each line and get the data in given (address, type)
+	by invoking retrieve_data() */
+	accessed_data=retrieve_data(&access_addr,access_type);
+	func(&accessed_data,access_type);
+	/* print hit ratio and bandwidth for each cache mechanism
+	as regards to cache association size */
+
+	/* close files */
+//	fclose(ifp);
+//	fclose(ofp);
+
+	/* print the final cache entries by invoking print_cache_entries() */
+	print_cache_entries();
+	return 0;
+}
+
+void init_memory_content() {
+	unsigned char sample_upward[16] = { 0x001, 0x012, 0x023, 0x034, 0x045, 0x056,
+	0x067, 0x078, 0x089, 0x09a, 0x0ab, 0x0bc, 0x0cd, 0x0de, 0x0ef };
+	unsigned char sample_downward[16] = { 0x0fe, 0x0ed, 0x0dc, 0x0cb, 0x0ba,
+	0x0a9, 0x098, 0x087, 0x076, 0x065, 0x054, 0x043, 0x032, 0x021, 0x010 };
+	int index, i = 0, j = 1, gap = 1;
+	printf("DATA >>\n");
+
+	for (index = 0; index < DEFAULT_MEMORY_SIZE_WORD; index++) { //128
+		printf(" [i = %d, j = %d, gap = %d] ", i, j, gap);
+		memory_array[index] = (sample_upward[i] << 24) | (sample_upward[j] << 16) // 1word = 4 bytes = 4 *8bit= 32bits
+			| (sample_downward[i] << 8) | (sample_downward[j]);
+		if (++i >= 16) i = 0; // cycle
+		if (++j >= 16) j = 0; // cycle
+		if (i == 0 && j == i + gap) // difference of i and j == gap
+			j = i + (++gap); // increases 1 gap and new j for each cycle
+		printf("\tmem[%d] = %#x\n", index, memory_array[index]);
+	}
+	printf("\n\n");
+}
+/* 초기화 cache memory */
+void init_cache_content() {
+	int i, j;
+	/* initialize cache data */
+	for (i = 0; i < CACHE_SET_SIZE; i++) {
+		for (j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+			cache_entry_t* pEntry = &cache_array[i][j];
+			pEntry->valid = 0; // invalid
+			pEntry->tag = -1; // no tag
+			pEntry->timestamp = 0; // no access trial
+		}
+	}
+}
+/* 캐시 출력 */
+void print_cache_entries() {
+	int i, j, k;
+	printf("ENTRY >>\n");
+	// for each set
+	for (i = 0; i < CACHE_SET_SIZE; i++) {
+		printf(" [Set %d] ", i);
+		// for each entry in a set
+		for (j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+			cache_entry_t* pEntry = &cache_array[i][j];
+			printf("\n Valid: %d Tag: %#x Time: %d Data: ", pEntry->valid,
+				pEntry->tag, pEntry->timestamp);
+			// for each block in a entry
+			for (k = 0; k < DEFAULT_CACHE_BLOCK_SIZE_BYTE; k++) {
+				printf("(%d)%#x ", k, pEntry->data[k]);
+			}
+			printf("\t");
+		}
+		printf("\n");
+	}
+}
+
+int check_cache_data_hit(void* addr, char type) {
+	int * n = addr; // addr = access_addr;
+	int tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) / WORD_SIZE_BYTE;
+	int index = (int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
+
+	printf("CACHE >> block_addr = %d, byte_offset = %d, cache_index = %d, tag = %d\n",
+		*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE,  //block_addr
+		*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE, //byte_offset
+		index, // cache_index
+		tag //tag
+	);
+	/* add this cache access cycle to global access cycle */
+	num_access_cycles++;
+
+	/* check all entries in a set */
+	for (int i = 0; i < CACHE_SET_SIZE; i++) {
+		for (int j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+			cache_entry_t* pEntry = &cache_array[i][j];
+			pEntry->timestamp++; //timestamp ?
+			if (pEntry->valid == 1 && tag == pEntry->tag) {  //valid =1 이고, tag가 일치하면 hit, 나머지는 miss
+				printf("=> Hit!\n");
+				return 1;
+			}
+		}
+	}
+	// return -1 for missing
+	return -1;
+}
+int find_entry_index_in_set(int cache_index) {
+	int entry_index;
+
+	/* If the set has only 1 entry, return index 0 */
+	if (DEFAULT_CACHE_ASSOC == 1) return 0;
+	/* Check if there exists any empty cache space by checking 'valid' */
+	for (int j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+		cache_entry_t* pEntry = &cache_array[cache_index][j];
+		if (pEntry->valid == 1)  continue;
+		return j;
+	}
+	/* Otherwise, search over all entries to find the least recently used entry by checking 'timestamp' */
+	int temp = 0;
+	for (int j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
+		cache_entry_t* pEntry = &cache_array[cache_index][j];
+		if (pEntry->timestamp < temp) {
+			temp = pEntry->timestamp;
+			entry_index = j;
+		}
+	}
+	return entry_index;
+}
+
+int access_memory(void* addr, char type) { //miss -> copy
+	/* get the entry index by invoking find_entry_index_in_set()
+	for copying to the cache */
+	int *n=addr;
+	int cache_index=floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
+	int entry_index = find_entry_index_in_set(cache_index);
+	/* add this main memory access cycle to global access cycle */
+	num_access_cycles += 101;
+	/* Fetch the data from the main memory and copy them to the cache */
+
+	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
+	pEntry->valid = 1;
+	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) / WORD_SIZE_BYTE;
+	pEntry->timestamp++;
+
+	int word_index = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) * DEFAULT_CACHE_BLOCK_SIZE_BYTE / WORD_SIZE_BYTE;
+	printf("MEMORY >> word index = %d",word_index);
+	//Floor(Byte Address / Block Size) X Block Size / Word Size
+	int left_shift = 24; //6*4bit
+	int right_shift = 8; // 1byte = 8bits
+	int val = memory_array[word_index];
+	for (int i = 0; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE-4; i++) {
+		pEntry->data[i] = val<< left_shift;
+		val=val >> right_shift; //1 byte right shift
+		left_shift -= 8;
+	}
+	val = memory_array[word_index + 1];
+	left_shift = 24;
+	for (int i = 4; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE ; i++) {
+		pEntry->data[i] = val << left_shift;
+		val=val >> right_shift; //1 byte right shift
+		left_shift -= 8;
+	}
+	//copy done
+	/* Return the accessed data with a suitable type (b, h, or w)
+	 ex) Word Address + Offset
+		= (30 / 4) + (30 % 4)
+		= 7 + 2
+		= > 0x7889 in mem[7]= Byte Address / Word Size*/
+	int word_address = *n / WORD_SIZE_BYTE;
+	int word_offset = *n % WORD_SIZE_BYTE;
+	int location = memory_array[word_address] >> 4 * word_offset;
+	switch (type) {
+		case 'b':
+			return location & 15;
+		case 'h':
+			return location & 255;
+		case 'w':
+			return location;
+	}
+	// return -1 for unknown type
+	return -1;
+}
+
+int retrieve_data(void* addr, char data_type) {
+   int value_returned = -1; /* accessed data */
+   //int *n=addr;
+   /* Check data by invoking check_cache_data_hit() */
+   if (check_cache_data_hit(addr, data_type) == -1) {
+   /* In case of the cache miss event, retrieve data from the main memory
+   by invoking access_memory() */
+      value_returned = access_memory(addr,data_type);
+      if (value_returned == -1) {
+         printf("unknwon type\n");
+         return -1;
+      }
+   }
+   /* If there is no data neither in cache nor memory, return -1,
+   else return data */
+   return value_returned;
+}
