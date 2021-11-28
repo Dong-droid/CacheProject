@@ -18,18 +18,12 @@
 void init_memory_content();
 void init_cache_content();
 void print_cache_entries();
+void func(void* x, char type);
 int check_cache_data_hit(void* addr, char type);
 int access_memory(void* addr, char type);
 int retrieve_data(void* addr, char data_type);
 /* Cache Entry Structure */
-void func(void* x, char type) {
-   if (type == 'b')
-      printf("%#x\n", (char*)x);
-   else if (type == 'h')
-      printf("%#x\n", (short*)x);
-   else if (type == 'w')
-      printf("%#x\n", (int*)x);
-}
+
 typedef struct cache_entry {
 	int valid; // present = 1, not present = 0
 	int tag; // tag of the stored data
@@ -62,6 +56,7 @@ int main() {
 	init_memory_content();
 	init_cache_content();
 	/* open input file as reading mode */
+	//여기 부분은 skip할게 너가 해주라~ㅋㅋ
 	/*ifp = fopen("access_input.txt", "r");
 	if (ifp == NULL) {
 		printf("Can't open input file\n");
@@ -91,7 +86,14 @@ int main() {
 	print_cache_entries();
 	return 0;
 }
-
+void func(void* x, char type) {
+   if (type == 'b')
+      printf("%#x\n", (char*)x);
+   else if (type == 'h')
+      printf("%#x\n", (short*)x);
+   else if (type == 'w')
+      printf("%#x\n", (int*)x);
+}
 void init_memory_content() {
 	unsigned char sample_upward[16] = { 0x001, 0x012, 0x023, 0x034, 0x045, 0x056,
 	0x067, 0x078, 0x089, 0x09a, 0x0ab, 0x0bc, 0x0cd, 0x0de, 0x0ef };
@@ -202,7 +204,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	/* get the entry index by invoking find_entry_index_in_set()
 	for copying to the cache */
 	int *n=addr;
-	int cache_index=floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
+	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
 	int entry_index = find_entry_index_in_set(cache_index);
 	/* add this main memory access cycle to global access cycle */
 	num_access_cycles += 101;
