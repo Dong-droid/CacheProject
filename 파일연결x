@@ -71,9 +71,10 @@ int main() {
 	}
 	*/
 	scanf("%ld%c",&access_addr,&access_type);
+	printf("===== addr %ld type %c =====\n",access_addr ,access_type);
 	/* read each line and get the data in given (address, type)
 	by invoking retrieve_data() */
-	accessed_data=retrieve_data(&access_addr,access_type);
+	accessed_data=retrieve_data(&access_addr,access_type);s
 	func(&accessed_data,access_type);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
