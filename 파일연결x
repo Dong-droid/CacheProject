@@ -42,8 +42,8 @@ int global_timestamp = 0; // # of data access trial
 
 FILE* ifp = NULL, * ofp = NULL; // file pointers
 
-unsigned long int access_addr; // byte address (located at 1st column)
-char access_type; // 'b'(byte), 'h'(halfword), or 'w'(word)
+unsigned long int access_addr[8]={334,490,329,489,338,279,148,339}; // byte address (located at 1st column)
+char access_type[8]={'b','h','w','h','h','b','w','b'}; // 'b'(byte), 'h'(halfword), or 'w'(word)
 // (located at 2nd column)
 int accessed_data; // data to retrive
 /* initialize memory and cache
@@ -70,12 +70,12 @@ int main() {
 		return -1;
 	}
 	*/
-	scanf("%ld%c",&access_addr,&access_type);
-	printf("===== addr %ld type %c =====\n",access_addr ,access_type);
+	for(int i=0;i<8;i++){
+	printf("===== addr %ld type %c =====\n",access_addr[i] ,access_type[i]);
 	/* read each line and get the data in given (address, type)
 	by invoking retrieve_data() */
-	accessed_data=retrieve_data(&access_addr,access_type);s
-	func(&accessed_data,access_type);
+	accessed_data=retrieve_data(access_addr+i,access_type[i]);
+	func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
 
@@ -85,6 +85,7 @@ int main() {
 
 	/* print the final cache entries by invoking print_cache_entries() */
 	print_cache_entries();
+	}
 	return 0;
 }
 void func(void* x, char type) {
@@ -232,24 +233,25 @@ int access_memory(void* addr, char type) { //miss -> copy
 		val=val >> right_shift; //1 byte right shift
 	}
 	//copy done
-	/* Return the accessed data with a suitable type (b, h, or w)
-	 ex) Word Address + Offset
-		= (30 / 4) + (30 % 4)
-		= 7 + 2
-		= > 0x7889 in mem[7]= Byte Address / Word Size*/
-	int word_address = *n / WORD_SIZE_BYTE;
-	int word_offset = *n % WORD_SIZE_BYTE;
-	int location = memory_array[word_address] >> 4 * word_offset;
- /*	switch (type) {
+    int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
+	printf("%d\n",byte_offset);
+		switch (type) {
 		case 'b':
-			return location & 15;
+			accessed_data=pEntry->data[byte_offset];
+			break;
 		case 'h':
-			return location & 255;
+			accessed_data=pEntry->data[byte_offset+1]<<8|pEntry->data[byte_offset];
+			break;
 		case 'w':
-			return location;
-	}*/
+			for(int i=0;i<4;i++){
+				accessed_data|=pEntry->data[byte_offset+i]<<8*i;
+			}
+			break;
+		default : return -1;
+	}
+	printf("%x\n",accessed_data);
 	// return -1 for unknown type
-	return location;
+	return accessed_data;
 }
 
 int retrieve_data(void* addr, char data_type) {
