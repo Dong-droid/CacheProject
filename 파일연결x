@@ -76,11 +76,11 @@ int main() {
 	by invoking retrieve_data() */
 	global_timestamp++;
 	accessed_data=retrieve_data(access_addr+i,access_type[i]);
-	printf("%x\n",accessed_data);
+	printf("0x%x\n",accessed_data);
 	if(access_type[i]=='b') num_bytes++;
 	else if(access_type[i]=='h') num_bytes+=2;
 	else num_bytes+=4;
-	func(&accessed_data,access_type[i]);
+	//func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
 
@@ -174,7 +174,7 @@ int check_cache_data_hit(void* addr, char type) {
 		tag //tag
 	);
 	/* add this cache access cycle to global access cycle */
-	num_access_cycles+=CACHE_ACCESS_CYCLE;
+	num_access_cycles++;
 
 	/* check all entries in a set */
 	
@@ -183,7 +183,7 @@ int check_cache_data_hit(void* addr, char type) {
 			if (pEntry->valid == 1 && tag == pEntry->tag) {  //valid =1 이고, tag가 일치하면 hit, 나머지는 miss
 				printf("=> Hit!\n");
 				num_cache_hits++;
-				return 1;
+				return pEntry->data[j];
 			}
 		}
 	printf("=> Miss!\n");
@@ -222,7 +222,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
 	int entry_index = find_entry_index_in_set(cache_index);
 	/* add this main memory access cycle to global access cycle */
-	num_access_cycles += MEMORY_ACCESS_CYCLE;
+	num_access_cycles += 100;
 	/* Fetch the data from the main memory and copy them to the cache */
 	
 	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
@@ -271,7 +271,8 @@ int retrieve_data(void* addr, char data_type) {
    int value_returned = -1; /* accessed data */
   
    /* Check data by invoking check_cache_data_hit() */
-   if (check_cache_data_hit(addr, data_type) == -1) {
+   int check=check_cache_data_hit(addr, data_type);
+   if (check==-1) {
    /* In case of the cache miss event, retrieve data from the main memory
    by invoking access_memory() */
       value_returned = access_memory(addr,data_type);
@@ -280,6 +281,7 @@ int retrieve_data(void* addr, char data_type) {
          return -1;
       }
    }
+   else value_returned=check;
    /* If there is no data neither in cache nor memory, return -1,
    else return data */
    return value_returned;
