@@ -4,7 +4,7 @@
 #define WORD_SIZE_BYTE 4 // 1 word = 4 bytes
 #define DEFAULT_CACHE_SIZE_BYTE 32 // cache size = 32 bytes
 #define DEFAULT_CACHE_BLOCK_SIZE_BYTE 8 // block size = 8 bytes
-#define DEFAULT_CACHE_ASSOC 2// association = 2
+#define DEFAULT_CACHE_ASSOC 1// association = 2
 // direct 1, 2-way 2, fully 4
 #define DEFAULT_MEMORY_SIZE_WORD 128 // main memory size = 128 words
 // = 128 * 4 bytes
@@ -42,8 +42,8 @@ int global_timestamp = 0; // # of data access trial
 
 FILE* ifp = NULL, * ofp = NULL; // file pointers
 
-unsigned long int access_addr[3]={3,68,4}; // byte address (located at 1st column)
-char access_type[3]={'b','h','h'}; // 'b'(byte), 'h'(halfword), or 'w'(word)
+unsigned long int access_addr[1]={7}; // byte address (located at 1st column)
+char access_type[1]={'w'}; // 'b'(byte), 'h'(halfword), or 'w'(word)
 // (located at 2nd column)
 int accessed_data; // data to retrive
 /* initialize memory and cache
@@ -70,7 +70,7 @@ int main() {
 		return -1;
 	}
 	*/
-	for(int i=0;i<3;i++){
+	for(int i=0;i<1;i++){
 	printf("===== addr %ld type %c =====\n",access_addr[i] ,access_type[i]);
 	/* read each line and get the data in given (address, type)
 	by invoking retrieve_data() */
@@ -79,7 +79,7 @@ int main() {
 	printf("0x%x\n",accessed_data);
 	if(access_type[i]=='b') num_bytes++;
 	else if(access_type[i]=='h') num_bytes+=2;
-	else num_bytes+=4;
+	else if(access_type[i]=='w') num_bytes+=4;
 	//func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
@@ -247,18 +247,33 @@ int access_memory(void* addr, char type) { //miss -> copy
 	}
 	//copy done
     int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
+    val = memory_array[word_index + 2];
 	switch (type) {
 		case 'b':
+			
 			data=pEntry->data[byte_offset];
 			break;
 		case 'h':
-			data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
+			if(byte_offset==7) data=((val&255)<<8)|(pEntry->data[byte_offset]&255);
+			else data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
 			break;
 		case 'w':
+			if(byte_offset>4){
+				int shift_amount=8-byte_offset;
+				for(int i=0;i<=7-byte_offset;i++){
+					data|=(pEntry->data[i+byte_offset]&255);
+				}
+				for(int i=0;i<byte_offset-4;i++){
+					data|= (val&255)<<8*(shift_amount++);
+					val=val >> right_shift;
+				}
+			}
+			else {
 			data=(pEntry->data[byte_offset]&255)
 			|((pEntry->data[byte_offset+1]&255)<<8)
 			|((pEntry->data[byte_offset+2]&255)<<16)
 			|(pEntry->data[byte_offset+3]<<24);
+			}
 			break;
 		
 		default : return -1;
@@ -277,7 +292,7 @@ int retrieve_data(void* addr, char data_type) {
    by invoking access_memory() */
       value_returned = access_memory(addr,data_type);
       if (value_returned == -1) { 
-         printf("UNKNOWN TYPE");
+         printf("UNKNOWN TYPE\n");
          return -1;
       }
    }
