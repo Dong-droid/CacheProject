@@ -174,7 +174,7 @@ int check_cache_data_hit(void* addr, char type) {
 		tag //tag
 	);
 	/* add this cache access cycle to global access cycle */
-	num_access_cycles++;
+	num_access_cycles+=CACHE_ACCESS_CYCLE;
 
 	/* check all entries in a set */
 	
@@ -222,7 +222,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
 	int entry_index = find_entry_index_in_set(cache_index);
 	/* add this main memory access cycle to global access cycle */
-	num_access_cycles += 100;
+	num_access_cycles += MEMORY_ACCESS_CYCLE;
 	/* Fetch the data from the main memory and copy them to the cache */
 	
 	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
