@@ -4,7 +4,7 @@
 #define WORD_SIZE_BYTE 4 // 1 word = 4 bytes
 #define DEFAULT_CACHE_SIZE_BYTE 32 // cache size = 32 bytes
 #define DEFAULT_CACHE_BLOCK_SIZE_BYTE 8 // block size = 8 bytes
-#define DEFAULT_CACHE_ASSOC 2// association = 2
+#define DEFAULT_CACHE_ASSOC 4// association = 2
 // direct 1, 2-way 2, fully 4
 #define DEFAULT_MEMORY_SIZE_WORD 128 // main memory size = 128 words
 // = 128 * 4 bytes
@@ -77,6 +77,9 @@ int main() {
 	global_timestamp++;
 	accessed_data=retrieve_data(access_addr+i,access_type[i]);
 	printf("%x\n",accessed_data);
+	if(access_type[i]=='b') num_bytes++;
+	else if(access_type[i]=='h') num_bytes+=2;
+	else num_bytes+=4;
 	func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
@@ -91,7 +94,9 @@ int main() {
 	}	
 	float hit_ratio=(float)num_cache_hits / (num_cache_hits + num_cache_misses);
 	float bandwidth=(float)num_bytes / num_access_cycles;
-	printf("hit ratio = %f\nbandwidth = %f\n", hit_ratio,bandwidth);
+	printf("hit ratio = %.2f (%d / %d)\nbandwidth = %.2f (%d / %d)\n",
+	hit_ratio,num_cache_hits,(num_cache_hits + num_cache_misses),
+	bandwidth,num_bytes,num_access_cycles);
 	return 0;
 }
 void func(void* x, char type) {
@@ -217,7 +222,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
 	int entry_index = find_entry_index_in_set(cache_index);
 	/* add this main memory access cycle to global access cycle */
-	num_access_cycles += 101;
+	num_access_cycles += 100;
 	/* Fetch the data from the main memory and copy them to the cache */
 	
 	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
@@ -245,14 +250,11 @@ int access_memory(void* addr, char type) { //miss -> copy
 	switch (type) {
 		case 'b':
 			data=pEntry->data[byte_offset];
-			num_bytes++;
 			break;
 		case 'h':
-			num_bytes+=2;
 			data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
 			break;
 		case 'w':
-			num_bytes+=4;
 			data=(pEntry->data[byte_offset]&255)
 			|((pEntry->data[byte_offset+1]&255)<<8)
 			|((pEntry->data[byte_offset+2]&255)<<16)
