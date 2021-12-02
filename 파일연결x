@@ -239,19 +239,20 @@ int access_memory(void* addr, char type) { //miss -> copy
 	}
 	//copy done
     int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
-	printf("%d\n",byte_offset);
-		switch (type) {
+	switch (type) {
 		case 'b':
-			data= pEntry->data[byte_offset];
+			data=pEntry->data[byte_offset];
 			break;
 		case 'h':
-			data=pEntry->data[byte_offset+1]<<8|pEntry->data[byte_offset];
+			data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
 			break;
 		case 'w':
-			for(int i=0;i<4;i++){
-				data|=pEntry->data[byte_offset+i]<<8*i;
-			}
+			data=(pEntry->data[byte_offset]&255)
+			|((pEntry->data[byte_offset+1]&255)<<8)
+			|((pEntry->data[byte_offset+2]&255)<<16)
+			|(pEntry->data[byte_offset+3]<<24);
 			break;
+		
 		default : return -1;
 	}
 	printf("%x\n",data);
