@@ -156,8 +156,8 @@ void print_cache_entries() {
 
 int check_cache_data_hit(void* addr, char type) {
 	int * n = addr; // addr = access_addr;
-	int tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) / WORD_SIZE_BYTE;
-	int index = (int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
+	int tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE;
+	int index = (int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
 
 	printf("CACHE >> block_addr = %d, byte_offset = %d, cache_index = %d, tag = %d\n",
 		*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE,  //block_addr
@@ -212,7 +212,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	for copying to the cache */
 	int data=0;
 	int *n=addr;
-	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % WORD_SIZE_BYTE;
+	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) % CACHE_SET_SIZE;
 	int entry_index = find_entry_index_in_set(cache_index);
 	/* add this main memory access cycle to global access cycle */
 	num_access_cycles += 101;
@@ -220,7 +220,7 @@ int access_memory(void* addr, char type) { //miss -> copy
 	
 	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
 	pEntry->valid = 1;
-	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) / WORD_SIZE_BYTE;
+	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE;
 	pEntry->timestamp++;
 
 	int word_index = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) * DEFAULT_CACHE_BLOCK_SIZE_BYTE / WORD_SIZE_BYTE;
