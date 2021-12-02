@@ -80,9 +80,7 @@ int main() {
 	func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
-	float hit_ratio=(float)num_cache_hits / (num_cache_hits + num_cache_misses);
-	float bandwidth=(float)num_bytes / num_access_cycles;
-	printf("hit ratio = %f\nbandwidth = %f\n", hit_ratio,bandwidth);
+
 	/* close files */
 //	fclose(ifp);
 //	fclose(ofp);
@@ -90,7 +88,10 @@ int main() {
 	/* print the final cache entries by invoking print_cache_entries() */
 	print_cache_entries();
 	printf("\n");
-	}
+	}	
+	float hit_ratio=(float)num_cache_hits / (num_cache_hits + num_cache_misses);
+	float bandwidth=(float)num_bytes / num_access_cycles;
+	printf("hit ratio = %f\nbandwidth = %f\n", hit_ratio,bandwidth);
 	return 0;
 }
 void func(void* x, char type) {
@@ -244,11 +245,14 @@ int access_memory(void* addr, char type) { //miss -> copy
 	switch (type) {
 		case 'b':
 			data=pEntry->data[byte_offset];
+			num_bytes++;
 			break;
 		case 'h':
+			num_bytes+=2;
 			data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
 			break;
 		case 'w':
+			num_bytes+=4;
 			data=(pEntry->data[byte_offset]&255)
 			|((pEntry->data[byte_offset+1]&255)<<8)
 			|((pEntry->data[byte_offset+2]&255)<<16)
