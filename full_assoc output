@@ -1,0 +1,117 @@
+===== addr 334 type b =====
+CACHE >> block_addr = 41, byte_offset = 6, cache_index = 0, tag = 41
+=> Miss!
+MEMORY >> word index = 82
+ffffff9a
+0xbeb1e2c0
+hit ratio = 0.000000
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+===== addr 490 type h =====
+CACHE >> block_addr = 61, byte_offset = 2, cache_index = 0, tag = 61
+=> Miss!
+MEMORY >> word index = 122
+ffffab23
+0xbeb1e2c0
+hit ratio = 0.000000
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+===== addr 329 type w =====
+CACHE >> block_addr = 41, byte_offset = 1, cache_index = 0, tag = 41
+=> Hit!
+ffffffff
+0xbeb1e2c0
+hit ratio = 0.333333
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+===== addr 489 type h =====
+CACHE >> block_addr = 61, byte_offset = 1, cache_index = 0, tag = 61
+=> Hit!
+ffffffff
+0xbeb1e2c0
+hit ratio = 0.500000
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+===== addr 338 type h =====
+CACHE >> block_addr = 42, byte_offset = 2, cache_index = 0, tag = 42
+=> Miss!
+MEMORY >> word index = 84
+45ab
+0xbeb1e2c0
+hit ratio = 0.400000
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 1 Tag: 0x2a Time: 5 Data: (0)0x54 (1)0xffffffba (2)0xffffffab (3)0x45 (4)0x43 (5)0xffffffa9 (6)0xffffffbc (7)0x56 	
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+===== addr 279 type b =====
+CACHE >> block_addr = 34, byte_offset = 7, cache_index = 0, tag = 34
+=> Miss!
+MEMORY >> word index = 68
+56
+0xbeb1e2c0
+hit ratio = 0.333333
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x29 Time: 1 Data: (0)0x76 (1)0xffffffdc (2)0xffffff89 (3)0x23 (4)0x65 (5)0xffffffcb (6)0xffffff9a (7)0x34 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 1 Tag: 0x2a Time: 5 Data: (0)0x54 (1)0xffffffba (2)0xffffffab (3)0x45 (4)0x43 (5)0xffffffa9 (6)0xffffffbc (7)0x56 	
+ Valid: 1 Tag: 0x22 Time: 6 Data: (0)0x65 (1)0xffffffba (2)0xffffff9a (3)0x45 (4)0x54 (5)0xffffffa9 (6)0xffffffab (7)0x56 	
+
+===== addr 148 type w =====
+CACHE >> block_addr = 18, byte_offset = 4, cache_index = 0, tag = 18
+=> Miss!
+MEMORY >> word index = 36
+5689a976
+0xbeb1e2c0
+hit ratio = 0.285714
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x12 Time: 7 Data: (0)0xffffff87 (1)0xffffffba (2)0x78 (3)0x45 (4)0x76 (5)0xffffffa9 (6)0xffffff89 (7)0x56 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 1 Tag: 0x2a Time: 5 Data: (0)0x54 (1)0xffffffba (2)0xffffffab (3)0x45 (4)0x43 (5)0xffffffa9 (6)0xffffffbc (7)0x56 	
+ Valid: 1 Tag: 0x22 Time: 6 Data: (0)0x65 (1)0xffffffba (2)0xffffff9a (3)0x45 (4)0x54 (5)0xffffffa9 (6)0xffffffab (7)0x56 	
+
+===== addr 339 type b =====
+CACHE >> block_addr = 42, byte_offset = 3, cache_index = 0, tag = 42
+=> Hit!
+ffffffff
+0xbeb1e2c0
+hit ratio = 0.375000
+bandwidth = 0.000000
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0x12 Time: 7 Data: (0)0xffffff87 (1)0xffffffba (2)0x78 (3)0x45 (4)0x76 (5)0xffffffa9 (6)0xffffff89 (7)0x56 	
+ Valid: 1 Tag: 0x3d Time: 2 Data: (0)0xffffffdc (1)0x54 (2)0x23 (3)0xffffffab (4)0xffffffcb (5)0x43 (6)0x34 (7)0xffffffbc 	
+ Valid: 1 Tag: 0x2a Time: 5 Data: (0)0x54 (1)0xffffffba (2)0xffffffab (3)0x45 (4)0x43 (5)0xffffffa9 (6)0xffffffbc (7)0x56 	
+ Valid: 1 Tag: 0x22 Time: 6 Data: (0)0x65 (1)0xffffffba (2)0xffffff9a (3)0x45 (4)0x54 (5)0xffffffa9 (6)0xffffffab (7)0x56 	
+
