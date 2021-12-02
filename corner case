@@ -1,3 +1,22 @@
 7 w 
 "Access_output” :
 7 w 0x34dccb12
+
+<아웃풋!>
+===== addr 7 type w =====
+CACHE >> block_addr = 0, byte_offset = 7, cache_index = 0, tag = 0
+=> Miss!
+MEMORY >> word index = 0
+0x34dccb12  //잘 나왔당ㅋㅋㅋ
+ENTRY >>
+ [Set 0] 
+ Valid: 1 Tag: 0 Time: 0 Data: (0)0xffffffed (1)0xfffffffe (2)0x12 (3)0x1 (4)0xffffffdc (5)0xffffffed (6)0x23 (7)0x12 	
+ [Set 1] 
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ [Set 2] 
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+ [Set 3] 
+ Valid: 0 Tag: 0xffffffff Time: 0 Data: (0)0 (1)0 (2)0 (3)0 (4)0 (5)0 (6)0 (7)0 	
+
+hit ratio = 0.00 (0 / 1)
+bandwidth = 0.04 (4 / 101)
