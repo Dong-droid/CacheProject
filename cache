@@ -71,19 +71,19 @@ int main() {
 	}
 	*/
 	for(int i=0;i<1;i++){
-	printf("===== addr %ld type %c =====\n",access_addr[i] ,access_type[i]);
 	/* read each line and get the data in given (address, type)
 	by invoking retrieve_data() */
-	
-	accessed_data=retrieve_data(access_addr+i,access_type[i]);
-	printf("0x%x\n",accessed_data);
+	printf("===== addr %ld type %c =====\n",access_addr[i] ,access_type[i]);
+	accessed_data=retrieve_data(access_addr+i,access_type[i]); //invoke retrieve_data()
+	printf("0x%x\n",accessed_data); //print accessed data
+	//make sum of num_bytes to calculate bandwidth
 	if(access_type[i]=='b') num_bytes++;
-	else if(access_type[i]=='h') num_bytes+=2;
-	else if(access_type[i]=='w') num_bytes+=4;
+	else if(access_type[i]=='h') num_bytes+=2; //half word = 2 bytes
+	else if(access_type[i]=='w') num_bytes+=4; // word = 4 bytes
 	//func(&accessed_data,access_type[i]);
 	/* print hit ratio and bandwidth for each cache mechanism
 	as regards to cache association size */
-	global_timestamp++;
+	global_timestamp++; // increasae timestamp 
 	/* close files */
 //	fclose(ifp);
 //	fclose(ofp);
@@ -92,21 +92,14 @@ int main() {
 	print_cache_entries();
 	printf("\n");
 	}	
-	float hit_ratio=(float)num_cache_hits / (num_cache_hits + num_cache_misses);
-	float bandwidth=(float)num_bytes / num_access_cycles;
-	printf("hit ratio = %.2f (%d / %d)\nbandwidth = %.2f (%d / %d)\n",
+	float hit_ratio=(float)num_cache_hits / (num_cache_hits + num_cache_misses); //caculate hit ratio
+	float bandwidth=(float)num_bytes / num_access_cycles; //calculate bandwidth
+	printf("hit ratio = %.2f (%d / %d)\nbandwidth = %.2f (%d / %d)\n", //print hit ratio and bandwidth
 	hit_ratio,num_cache_hits,(num_cache_hits + num_cache_misses),
 	bandwidth,num_bytes,num_access_cycles);
 	return 0;
 }
-void func(void* x, char type) {
-   if (type == 'b')
-      printf("%#x\n", (char*)x);
-   else if (type == 'h')
-      printf("%#x\n", (short*)x);
-   else if (type == 'w')
-      printf("%#x\n", (int*)x);
-}
+
 void init_memory_content() {
 	unsigned char sample_upward[16] = { 0x001, 0x012, 0x023, 0x034, 0x045, 0x056,
 	0x067, 0x078, 0x089, 0x09a, 0x0ab, 0x0bc, 0x0cd, 0x0de, 0x0ef };
@@ -127,7 +120,6 @@ void init_memory_content() {
 	}
 	printf("\n\n");
 }
-/* 초기화 cache memory */
 void init_cache_content() {
 	int i, j;
 	/* initialize cache data */
@@ -140,7 +132,6 @@ void init_cache_content() {
 		}
 	}
 }
-/* 캐시 출력 */
 void print_cache_entries() {
 	int i, j, k;
 	printf("ENTRY >>\n");
@@ -163,10 +154,10 @@ void print_cache_entries() {
 }
 
 int check_cache_data_hit(void* addr, char type) {
-	int * n = addr; // addr = access_addr;
-	int tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE;
-	int index = (int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
-
+	int * n = addr; 
+	int tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE; // calculate tag
+	int index = (int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE; // calculate index
+	//print block address, byte offset, cache inde, and tag
 	printf("CACHE >> block_addr = %d, byte_offset = %d, cache_index = %d, tag = %d\n",
 		*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE,  //block_addr
 		*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE, //byte_offset
@@ -180,15 +171,15 @@ int check_cache_data_hit(void* addr, char type) {
 	
 		for (int j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
 			cache_entry_t* pEntry = &cache_array[index][j];
-			if (pEntry->valid == 1 && tag == pEntry->tag) {  //valid =1 이고, tag가 일치하면 hit, 나머지는 miss
+			if (pEntry->valid == 1 && tag == pEntry->tag) {  // if valid ==1 and those tags are same, then hit or miss
 				printf("=> Hit!\n");
-				num_cache_hits++;
-				pEntry->timestamp= global_timestamp;
-				return pEntry->data[j];
+				num_cache_hits++; // increase #cache hit
+				pEntry->timestamp= global_timestamp; // update timestamp for hit case
+				return pEntry->data[j]; // return data
 			}
 		}
 	printf("=> Miss!\n");
-	num_cache_misses++;
+	num_cache_misses++;//increase #cache miss
 	// return -1 for missing
 	return -1;
 }
@@ -204,12 +195,12 @@ int find_entry_index_in_set(int cache_index) {
 		return j;
 	}
 	/* Otherwise, search over all entries to find the least recently used entry by checking 'timestamp' */
-	int temp = 10000000000;
+	int temp = 10000000000; //assume that temp has a very large number
 	for (int j = 0; j < DEFAULT_CACHE_ASSOC; j++) {
 		cache_entry_t* pEntry = &cache_array[cache_index][j];
-		if (pEntry->timestamp < temp) { //최소 timestamp값 구하기
-			temp = pEntry->timestamp;
-			entry_index = j;
+		if (pEntry->timestamp < temp) { //find out LRU data
+			temp = pEntry->timestamp; //update temp
+			entry_index = j; 
 		}
 	}
 	return entry_index;
@@ -219,66 +210,72 @@ int access_memory(void* addr, char type) { //miss -> copy
 	/* get the entry index by invoking find_entry_index_in_set()
 	for copying to the cache */
 	int data=0;
-	int *n=addr;
-	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE;
-	int entry_index = find_entry_index_in_set(cache_index);
-	/* add this main memory access cycle to global access cycle */
-	num_access_cycles += 100;
-	/* Fetch the data from the main memory and copy them to the cache */
-	
-	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
-	pEntry->valid = 1;
-	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE;
-	pEntry->timestamp= global_timestamp;
-	int word_index = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) * DEFAULT_CACHE_BLOCK_SIZE_BYTE / WORD_SIZE_BYTE;
-	printf("MEMORY >> word index = %d\n",word_index);
-	//Floor(Byte Address / Block Size) X Block Size / Word Size
+	int *n=addr;	
 	int right_shift = 8; // 1byte = 8bits
 	int val = memory_array[word_index];
+	int cache_index=(int)floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) %  CACHE_SET_SIZE; // caculate cache index
+	int entry_index = find_entry_index_in_set(cache_index); //calculate entry index
 	
+	/* add this main memory access cycle to global access cycle */
+	num_access_cycles += 100; 
+	
+	/* Fetch the data from the main memory and copy them to the cache */
+	cache_entry_t* pEntry = &cache_array[cache_index][entry_index];
+	pEntry->valid = 1; //update valid to 1
+	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE; //caculate tag
+	pEntry->timestamp= global_timestamp; // update timestamp for miss case 
+	int word_index = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) * DEFAULT_CACHE_BLOCK_SIZE_BYTE / WORD_SIZE_BYTE; //calculate word index to copy
+	int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
+	
+	printf("MEMORY >> word index = %d\n",word_index); // print word index
+	// copy  the first word from memory to cache 
 	for (int i = 0; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE-4; i++) {
-		pEntry->data[i] = val;
+		pEntry->data[i] = val;  // copy data
 		val=val >> right_shift; //1 byte right shift
 	}
+	// copy the second word from memory to cache
 	val = memory_array[word_index + 1];
 	for (int i = 4; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE ; i++) {
-		pEntry->data[i] = val;
+		pEntry->data[i] = val;  // copy data 
 		val=val >> right_shift; //1 byte right shift
 	}
 	//copy done
-    int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
-    val = memory_array[word_index + 2];
+	
+    	val = memory_array[word_index + 2]; //use one more word from memory for corner case 
+	//set (accessed)data according to the char type
 	switch (type) {
 		case 'b':
-			
 			data=pEntry->data[byte_offset];
 			break;
 		case 'h':
-			if(byte_offset==7) data=((val&255)<<8)|(pEntry->data[byte_offset]&255);
-			else data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255);
+			if(byte_offset==7) data=((val&255)<<8)|(pEntry->data[byte_offset]&255); // when byte offset is 7, use one more word 
+			else data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255); // use bit & operation to make all bits 0 except [8-0] bits
 			break;
 		case 'w':
+			//when byte offset is bigger than 4, use one more word 
 			if(byte_offset>4){
-				int shift_amount=8-byte_offset;
-				for(int i=0;i<=7-byte_offset;i++){
-					data|=(pEntry->data[i+byte_offset]&255);
+				int shift_amount=8-byte_offset; // cacluate shift amount
+				// until byte offset reaches the end of the word
+				for(int i=0;i<=7-byte_offset;i++){ 
+					data|=(pEntry->data[i+byte_offset]&255); // use bit & operation to make all bits 0 except [8-0] bits
 				}
+				// copy one more word
 				for(int i=0;i<byte_offset-4;i++){
-					data|= (val&255)<<8*(shift_amount++);
-					val=val >> right_shift;
+					data|= (val&255)<<8*(shift_amount++); // shift left to locate its correct location
+					val=val >> right_shift; //shift right to get next byte
 				}
 			}
+			// when byte offset if not bigger than 4, don't have to use one more word
 			else {
-			data=(pEntry->data[byte_offset]&255)
-			|((pEntry->data[byte_offset+1]&255)<<8)
-			|((pEntry->data[byte_offset+2]&255)<<16)
-			|(pEntry->data[byte_offset+3]<<24);
+			data=(pEntry->data[byte_offset]&255)  // use bit & operation to make all bits 0 except [8-0] bits
+			|((pEntry->data[byte_offset+1]&255)<<8) // shift left to locate its correct location
+			|((pEntry->data[byte_offset+2]&255)<<16) // shift left to locate its correct location
+			|(pEntry->data[byte_offset+3]<<24);// shift left to locate its correct location
 			}
 			break;
 		
-		default : return -1;
+		default : return -1;// return -1 for unknown type
 	}
-	// return -1 for unknown type
 	return data;
 }
 
@@ -287,7 +284,7 @@ int retrieve_data(void* addr, char data_type) {
   
    /* Check data by invoking check_cache_data_hit() */
    int check=check_cache_data_hit(addr, data_type);
-   if (check==-1) {
+   if (check==-1) { //cache miss
    /* In case of the cache miss event, retrieve data from the main memory
    by invoking access_memory() */
       value_returned = access_memory(addr,data_type);
@@ -296,8 +293,6 @@ int retrieve_data(void* addr, char data_type) {
          return -1;
       }
    }
-   else value_returned=check;
-   /* If there is no data neither in cache nor memory, return -1,
-   else return data */
-   return value_returned;
+   else value_returned=check; //cache hit 
+   return value_returned; // return data
 }
