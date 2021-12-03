@@ -225,41 +225,40 @@ int access_memory(void* addr, char type) { //miss -> copy
 	pEntry->tag = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) /  CACHE_SET_SIZE; //caculate tag
 	pEntry->timestamp= global_timestamp; // update timestamp for miss case 
 	int word_index = floor(*n / DEFAULT_CACHE_BLOCK_SIZE_BYTE) * DEFAULT_CACHE_BLOCK_SIZE_BYTE / WORD_SIZE_BYTE; //calculate word index to copy
-	int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE;
+	int byte_offset=*n % DEFAULT_CACHE_BLOCK_SIZE_BYTE; // calculate byte offset
 	
 	printf("MEMORY >> word index = %d\n",word_index); // print word index
 	// copy  the first word from memory to cache 
 	for (int i = 0; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE-4; i++) {
 		pEntry->data[i] = val;  // copy data
-		val=val >> right_shift; //1 byte right shift
+		val=val >> right_shift; //shift right1 byte  
 	}
 	// copy the second word from memory to cache
 	val = memory_array[word_index + 1];
 	for (int i = 4; i < DEFAULT_CACHE_BLOCK_SIZE_BYTE ; i++) {
 		pEntry->data[i] = val;  // copy data 
-		val=val >> right_shift; //1 byte right shift
+		val=val >> right_shift; //shift right 1 byte 
 	}
 	//copy done
 	
-    	val = memory_array[word_index + 2]; //use one more word from memory for corner case 
-	//set (accessed)data according to the char type
+    	val = memory_array[word_index + 2]; //use one more word from memory for corner cases 
+	//set (accessed)data to return according to the char type
 	switch (type) {
 		case 'b':
 			data=pEntry->data[byte_offset];
 			break;
 		case 'h':
-			if(byte_offset==7) data=((val&255)<<8)|(pEntry->data[byte_offset]&255); // when byte offset is 7, use one more word 
+			if(byte_offset==7) data=((val&255)<<8)|(pEntry->data[byte_offset]&255); // when byte offset is 7, use one more word for corner case 
 			else data=(pEntry->data[byte_offset+1]<<8)|(pEntry->data[byte_offset]&255); // use bit & operation to make all bits 0 except [8-0] bits
 			break;
 		case 'w':
 			//when byte offset is bigger than 4, use one more word 
 			if(byte_offset>4){
-				int shift_amount=8-byte_offset; // cacluate shift amount
-				// until byte offset reaches the end of the word
-				for(int i=0;i<=7-byte_offset;i++){ 
+				int shift_amount=8-byte_offset; // cacluate shift amount	
+				for(int i=0;i<=7-byte_offset;i++){ // until byte offset reaches the end of the word
 					data|=(pEntry->data[i+byte_offset]&255); // use bit & operation to make all bits 0 except [8-0] bits
 				}
-				// copy one more word
+				// copy one more word for corner case 
 				for(int i=0;i<byte_offset-4;i++){
 					data|= (val&255)<<8*(shift_amount++); // shift left to locate its correct location
 					val=val >> right_shift; //shift right to get next byte
@@ -281,18 +280,19 @@ int access_memory(void* addr, char type) { //miss -> copy
 
 int retrieve_data(void* addr, char data_type) {
    int value_returned = -1; /* accessed data */
-  
    /* Check data by invoking check_cache_data_hit() */
    int check=check_cache_data_hit(addr, data_type);
+   
    if (check==-1) { //cache miss
    /* In case of the cache miss event, retrieve data from the main memory
    by invoking access_memory() */
-      value_returned = access_memory(addr,data_type);
-      if (value_returned == -1) { 
+   value_returned = access_memory(addr,data_type);
+   if (value_returned == -1) { 
          printf("UNKNOWN TYPE\n");
          return -1;
       }
    }
    else value_returned=check; //cache hit 
+   
    return value_returned; // return data
 }
