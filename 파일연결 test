@@ -15,22 +15,24 @@ int main() {
 		return -1;
 	}
 	
-	for (int i = 0; i < 10; i++)
-	{
-		fscanf(ifp, "%d %c", &access_addr[i], &access_type[i]);   // 서식을 지정하여 파일에서 문자열 읽기
-		printf("%d %c\n", access_addr[i], access_type[i]);      // Hello 100: 파일에서 읽은 값을 출력
-		
-	}
-
 	ofp = fopen("access_output.txt", "w");
 	if (ofp == NULL) {
 		printf("Can't open output file\n");
 		fclose(ifp);
 		return -1;
 	}
-	for (int i = 0; i < 8; i++) {
+	
+	int i=0;
+	
+	while(1)
+	{	
+		fscanf(ifp, "%d %c", &access_addr[i], &access_type[i]);   // 서식을 지정하여 파일에서 문자열 읽기
+		//printf("%d %c\n", access_addr[i], access_type[i]);
 		fprintf(ofp, "===== addr %d type %c =====\n", access_addr[i], access_type[i]);
-	}
+		if (access_type[i] == NULL)
+			break;
+		i++;
+	} 
 	fclose(ifp);    // 파일 포인터 닫기
 	fclose(ofp);
 	return 0;
