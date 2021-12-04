@@ -46,17 +46,17 @@ int main() {
 		fprintf(ofp, "===== addr %d type %c =====\n", access_addr, access_type);
 		accessed_data = retrieve_data(&access_addr, access_type); //invoke retrieve_data()
 		fprintf(ofp, "0x%x\n", accessed_data); //print accessed data
+	
 		//make sum of num_bytes to calculate bandwidth
 		if (access_type == 'b') num_bytes++;
 		else if (access_type == 'h') num_bytes += 2; //half word = 2 bytes
 		else if (access_type == 'w') num_bytes += 4; // word = 4 bytes
-		//func(&accessed_data,access_type[i]);
-		/* print hit ratio and bandwidth for each cache mechanism as regards to cache association size */
-		global_timestamp++; // increasae timestamp 
 		
+		global_timestamp++; // increasae timestamp 
+		print_cache_entries();
 		
 	}	
-	
+	/* print hit ratio and bandwidth for each cache mechanism as regards to cache association size */
 	float hit_ratio = (float)num_cache_hits / (num_cache_hits + num_cache_misses); //caculate hit ratio
 	float bandwidth = (float)num_bytes / num_access_cycles; //calculate bandwidth
 	fprintf(ofp, "hit ratio = %.2f (%d / %d)\nbandwidth = %.2f (%d / %d)\n", //print hit ratio and bandwidth
