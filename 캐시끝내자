@@ -23,9 +23,10 @@ cache_entry_t cache_array[CACHE_SET_SIZE][DEFAULT_CACHE_ASSOC];
 int memory_array[DEFAULT_MEMORY_SIZE_WORD];
 
 int main() {
+
 	init_memory_content();
 	init_cache_content();
-
+	
 	/* open input file as reading mode */
 	ifp = fopen("access_input.txt", "r");
 	if (ifp == NULL) {
@@ -33,7 +34,7 @@ int main() {
 		return -1;
 	}
 	/*open output file as writing mode */
-	ofp = fopen("access_output.txt", "w");
+	ofp = fopen("access_output3.txt", "w");
 	if (ofp == NULL) {
 		printf("Can't open output file\n");
 		fclose(ifp);
@@ -43,34 +44,41 @@ int main() {
 	/* read each line and get the data in given (address, type) by invoking retrieve_data() */
 	while (EOF != fscanf(ifp, "%d %c", &access_addr, &access_type))
 	{
+		init_cache_content();
 		fprintf(ofp, "===== addr %d type %c =====\n", access_addr, access_type);
+		printf("===== addr %d type %c =====\n", access_addr, access_type);
 		accessed_data = retrieve_data(&access_addr, access_type); //invoke retrieve_data()
 		fprintf(ofp, "0x%x\n", accessed_data); //print accessed data
-	
+		printf("0x%x\n", accessed_data); //print accessed data
+
 		//make sum of num_bytes to calculate bandwidth
 		if (access_type == 'b') num_bytes++;
 		else if (access_type == 'h') num_bytes += 2; //half word = 2 bytes
 		else if (access_type == 'w') num_bytes += 4; // word = 4 bytes
-		
+		//func(&accessed_data,access_type[i]);
+		/* print hit ratio and bandwidth for each cache mechanism as regards to cache association size */
 		global_timestamp++; // increasae timestamp 
-		print_cache_entries();
 		
+		/* print the final cache entries by invoking print_cache_entries() */
+		print_cache_entries();
+		printf("\n");
+				
 	}	
-	/* print hit ratio and bandwidth for each cache mechanism as regards to cache association size */
+	
 	float hit_ratio = (float)num_cache_hits / (num_cache_hits + num_cache_misses); //caculate hit ratio
 	float bandwidth = (float)num_bytes / num_access_cycles; //calculate bandwidth
 	fprintf(ofp, "hit ratio = %.2f (%d / %d)\nbandwidth = %.2f (%d / %d)\n", //print hit ratio and bandwidth
 		hit_ratio, num_cache_hits, (num_cache_hits + num_cache_misses),
 		bandwidth, num_bytes, num_access_cycles);
 	
-	
-	/* close files */
+	    /* close files */
 		fclose(ifp);
 		fclose(ofp);
 
-	/* print the final cache entries by invoking print_cache_entries() */
+		/* print the final cache entries by invoking print_cache_entries() */
 		print_cache_entries();
 		printf("\n");
+
 		return 0;
 }
 
