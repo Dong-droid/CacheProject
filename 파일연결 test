@@ -29,9 +29,8 @@ int main() {
 		fscanf(ifp, "%d %c", &access_addr, &access_type);   // 서식을 지정하여 파일에서 문자열 읽기
 		//printf("%d %c\n", access_addr, access_type);
 		fprintf(ofp, "===== addr %d type %c =====\n", access_addr[i], access_type[i]);
-		if (access_type[i] == NULL)
+		if (access_type == NULL)
 			break;
-		i++;
 	} 
 	fclose(ifp);    // 파일 포인터 닫기
 	fclose(ofp);
