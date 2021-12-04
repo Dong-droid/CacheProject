@@ -1,0 +1,38 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+
+FILE* ifp = NULL, * ofp = NULL; // file pointers
+
+unsigned long int access_addr[10] = {0, }; // byte address (located at 1st column)
+char access_type[10] = {0, }; // 'b'(byte), 'h'(halfword), or 'w'(word)
+// (located at 2nd column)
+
+int main() {
+
+	ifp = fopen("access_input.txt", "r");
+	if (ifp == NULL) {
+		printf("Can't open input file\n");
+		return -1;
+	}
+	
+	for (int i = 0; i < 10; i++)
+	{
+		fscanf(ifp, "%d %c", &access_addr[i], &access_type[i]);   // 서식을 지정하여 파일에서 문자열 읽기
+		printf("%d %c\n", access_addr[i], access_type[i]);      // Hello 100: 파일에서 읽은 값을 출력
+		
+	}
+
+	ofp = fopen("access_output.txt", "w");
+	if (ofp == NULL) {
+		printf("Can't open output file\n");
+		fclose(ifp);
+		return -1;
+	}
+	for (int i = 0; i < 8; i++) {
+		fprintf(ofp, "===== addr %d type %c =====\n", access_addr[i], access_type[i]);
+	}
+	fclose(ifp);    // 파일 포인터 닫기
+	fclose(ofp);
+	return 0;
+
+}
