@@ -3,8 +3,8 @@
 
 FILE* ifp = NULL, * ofp = NULL; // file pointers
 
-unsigned long int access_addr[10] = {0, }; // byte address (located at 1st column)
-char access_type[10] = {0, }; // 'b'(byte), 'h'(halfword), or 'w'(word)
+unsigned long int access_addr; // byte address (located at 1st column)
+char access_type; // 'b'(byte), 'h'(halfword), or 'w'(word)
 // (located at 2nd column)
 
 int main() {
@@ -26,8 +26,8 @@ int main() {
 	
 	while(1)
 	{	
-		fscanf(ifp, "%d %c", &access_addr[i], &access_type[i]);   // 서식을 지정하여 파일에서 문자열 읽기
-		//printf("%d %c\n", access_addr[i], access_type[i]);
+		fscanf(ifp, "%d %c", &access_addr, &access_type);   // 서식을 지정하여 파일에서 문자열 읽기
+		//printf("%d %c\n", access_addr, access_type);
 		fprintf(ofp, "===== addr %d type %c =====\n", access_addr[i], access_type[i]);
 		if (access_type[i] == NULL)
 			break;
