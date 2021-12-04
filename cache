@@ -8,7 +8,7 @@
 // direct 1, 2-way 2, fully 4
 #define DEFAULT_MEMORY_SIZE_WORD 128 // main memory size = 128 words
 // = 128 * 4 bytes
-#define CACHE_ACCESS_CYCLE 2 // cache access time = 1 cycle
+#define CACHE_ACCESS_CYCLE 1 // cache access time = 1 cycle
 #define MEMORY_ACCESS_CYCLE 100 // main memory access time
 // = 100 cycles
 #define CACHE_SET_SIZE ((DEFAULT_CACHE_SIZE_BYTE) / (DEFAULT_CACHE_BLOCK_SIZE_BYTE * DEFAULT_CACHE_ASSOC))
